@@ -52,5 +52,4 @@ jobs:
         with:
           name: android-release-apk
           # Точный путь только к подписанному файлу
-          path: src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-re
-          lease.apk
+          path: src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk
