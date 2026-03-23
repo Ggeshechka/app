@@ -6,6 +6,8 @@ on:
 jobs:
   android-build:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Исправляет ошибку Node.js
     steps:
       - uses: actions/checkout@v4
 
@@ -35,7 +37,7 @@ jobs:
 
       - name: Decode Keystore
         run: |
-          base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > ${{ runner.temp }}/keystore.jks
+          echo "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 -d > ${{ runner.temp }}/keystore.jks
 
       - name: Build Signed APK
         env:
@@ -46,15 +48,9 @@ jobs:
           TAURI_ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: npx tauri android build --apk
 
-      - name: Build APK
-        env:
-          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-        run: npx tauri android build
-
       - uses: actions/upload-artifact@v4
         with:
           name: android-release-apk
-          path: |
-            src-tauri/gen/android/app/build/outputs/apk/**/release/*.apk
-            !src-tauri/gen/android/app/build/outputs/apk/**/*-unsigned.apk
-            
+          # Точный путь только к подписанному файлу
+          path: src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-re
+          lease.apk
