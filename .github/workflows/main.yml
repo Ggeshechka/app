@@ -7,7 +7,7 @@ jobs:
   android-build:
     runs-on: ubuntu-latest
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Исправляет ошибку Node.js
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
@@ -21,9 +21,8 @@ jobs:
           node-version: '20'
 
       - run: npm install
-
-      - name: Typecheck
-        run: npx tsc --noEmit
+      
+      - run: npx tsc --noEmit
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -35,21 +34,21 @@ jobs:
           ndk-version: r26b
           add-to-path: false
 
-      - name: Decode Keystore
+      - name: Setup Android signing
         run: |
-          echo "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 -d > ${{ runner.temp }}/keystore.jks
+          cd src-tauri/gen/android
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" > keystore.properties
+          echo "password=${{ secrets.ANDROID_KEY_PASSWORD }}" >> keystore.properties
+          base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > ${{ runner.temp }}/keystore.jks
+          echo "storeFile=${{ runner.temp }}/keystore.jks" >> keystore.properties
 
-      - name: Build Signed APK
+      - name: Build APK
         env:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-          TAURI_ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/keystore.jks
-          TAURI_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          TAURI_ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          TAURI_ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: npx tauri android build --apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: android-release-apk
-          # Точный путь только к подписанному файлу
-          path: src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk
+          name: android-apk
+          path: "src-tauri/gen/android/app/build/outputs/apk/*
+          */*.apk"
