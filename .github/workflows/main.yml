@@ -33,19 +33,17 @@ jobs:
           ndk-version: r26b
           add-to-path: false
 
-      - name: Decode Keystore
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      - name: Setup Android signing
         run: |
-          echo "$KEYSTORE_BASE64" | base64 --decode > ${{ runner.temp }}/keystore.jks
+          cd src-tauri/gen/android
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" > keystore.properties
+          echo "password=${{ secrets.ANDROID_KEY_PASSWORD }}" >> keystore.properties
+          base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > $RUNNER_TEMP/keystore.jks
+          echo "storeFile=$RUNNER_TEMP/keystore.jks" >> keystore.properties
 
-      - name: Build Signed APK
+      - name: Build APK
         env:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-          TAURI_ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/keystore.jks
-          TAURI_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          TAURI_ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          TAURI_ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: npx tauri android build
 
       - uses: actions/upload-artifact@v4
