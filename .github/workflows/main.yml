@@ -2,6 +2,7 @@ name: 'Tauri Android Build'
 on:
   push:
     branches: [ main ]
+  dispatched:
 
 jobs:
   android-build:
