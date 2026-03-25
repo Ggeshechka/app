@@ -5,7 +5,9 @@ import android.net.VpnService
 import android.os.ParcelFileDescriptor
 import libXray.LibXray
 import libXray.DialerController
+import androidx.annotation.Keep // Добавить импорт
 
+@Keep
 class XrayVpnService : VpnService(), DialerController {
 
     private var vpnInterface: ParcelFileDescriptor? = null

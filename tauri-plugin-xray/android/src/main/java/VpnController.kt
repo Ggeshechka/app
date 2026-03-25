@@ -5,8 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.VpnService
 import android.os.Bundle
-import libXray.LibXray // Зависит от вашего пакета gomobile
+import libXray.LibXray
+import androidx.annotation.Keep
 
+@Keep
 object VpnController {
     fun start(context: Context, configPath: String) {
         if (getStatus()) return
