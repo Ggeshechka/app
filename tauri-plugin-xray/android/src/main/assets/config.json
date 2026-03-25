@@ -66,11 +66,11 @@
   "inbounds": [
     {
       "tag": "tun-in",
-      "interface": "xray0",
+      "port": 0,
       "protocol": "tun",
       "settings": {
-        "name": "xray0",
-        "mtu": 1400
+        "name": "tun0",
+        "mtu": 1500
       },
       "sniffing": {
         "enabled": true,
@@ -110,20 +110,12 @@
           "publicKey": "NP5h1YxJALizPrsdRAuk1Sc2JAWYhtg3Pe0JqGSyVhY",
           "shortId": "69d0c943a62745d6",
           "fingerprint": "chrome"
-        },
-        "sockopt": {
-          "mark": 255
         }
       }
     },
     {
       "tag": "direct",
-      "protocol": "freedom",
-      "streamSettings": {
-        "sockopt": {
-          "mark": 255
-        }
-      }
+      "protocol": "freedom"
     },
     {
       "tag": "block",

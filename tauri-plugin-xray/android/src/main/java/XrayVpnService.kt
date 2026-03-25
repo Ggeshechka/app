@@ -5,7 +5,8 @@ import android.net.VpnService
 import android.os.ParcelFileDescriptor
 import libXray.LibXray
 import libXray.DialerController
-import androidx.annotation.Keep // Добавить импорт
+import androidx.annotation.Keep 
+import android.system.Os
 
 @Keep
 class XrayVpnService : VpnService(), DialerController {
@@ -45,12 +46,24 @@ class XrayVpnService : VpnService(), DialerController {
     private fun startXray(configPath: String) {
         LibXray.registerDialerController(this)
         
-        val datDir = filesDir.absolutePath // Путь, где должны лежать geoip.dat и geosite.dat
+        val fd = vpnInterface!!.fd
+        try {
+            Os.setenv("xray.tun.fd", fd.toString(), true)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        val datDir = filesDir.absolutePath
 
         Thread {
             try {
                 val req = LibXray.newXrayRunRequest(datDir, datDir, configPath)
-                LibXray.runXray(req)
+                val resultBase64 = LibXray.runXray(req)
+                
+                if (resultBase64.isNotEmpty()) {
+                    val resultJson = String(android.util.Base64.decode(resultBase64, android.util.Base64.DEFAULT))
+                    android.util.Log.e("XRAY_CORE", "Result: $resultJson")
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
