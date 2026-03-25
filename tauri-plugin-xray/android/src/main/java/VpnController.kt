@@ -8,7 +8,6 @@ import android.os.Bundle
 import libXray.LibXray
 import androidx.annotation.Keep
 
-@Keep
 object VpnController {
     fun start(context: Context, configPath: String) {
         if (getStatus()) return
@@ -51,6 +50,7 @@ object VpnController {
     }
 }
 
+@Keep
 class VpnPermissionActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
