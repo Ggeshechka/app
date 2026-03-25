@@ -10,9 +10,8 @@ class XrayVpnService : VpnService(), DialerController {
 
     private var vpnInterface: ParcelFileDescriptor? = null
 
-    // Проброс защиты сокетов в ядро для избежания VPN loop
-    override fun ProtectFd(fd: Int): Boolean {
-        return protect(fd)
+    override fun protectFd(fd: Long): Boolean {
+        return protect(fd.toInt()) // Приводим Long к Int, так как VpnService.protect требует Int
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
