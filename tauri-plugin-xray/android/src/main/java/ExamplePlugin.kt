@@ -29,7 +29,12 @@ class ExamplePlugin(private val activity: Activity): Plugin(activity) {
 
             when (action) {
                 "startVpn" -> {
-                    VpnController.start(activity.applicationContext, data)
+                    // data содержит сырой JSON, сохраняем его в config.json
+                    val configFile = java.io.File(activity.filesDir, "config.json")
+                    configFile.writeText(data)
+                    
+                    // Передаем абсолютный путь к созданному файлу
+                    VpnController.start(activity.applicationContext, configFile.absolutePath)
                     ret.put("value", "VPN start initiated")
                 }
                 "stopVpn" -> {
