@@ -48,24 +48,25 @@ class XrayVpnService : VpnService(), DialerController {
         
         val fd = vpnInterface!!.fd
         try {
-            Os.setenv("xray.tun.fd", fd.toString(), true)
+            android.system.Os.setenv("xray.tun.fd", fd.toString(), true)
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        val datDir = filesDir.absolutePath
+        val datDir = filesDir.absolutePath // Убедитесь, что файлы .dat тут есть!
 
         Thread {
             try {
                 val req = LibXray.newXrayRunRequest(datDir, datDir, configPath)
                 val resultBase64 = LibXray.runXray(req)
                 
+                // Если ядро упало или вернуло ошибку при старте:
                 if (resultBase64.isNotEmpty()) {
                     val resultJson = String(android.util.Base64.decode(resultBase64, android.util.Base64.DEFAULT))
-                    android.util.Log.e("XRAY_CORE", "Result: $resultJson")
+                    android.util.Log.e("XRAY_CORE", "FATAL ERROR: $resultJson")
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("XRAY_CORE", "Crash", e)
             }
         }.start()
     }
