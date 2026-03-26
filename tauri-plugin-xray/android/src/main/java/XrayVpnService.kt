@@ -27,7 +27,7 @@ class XrayVpnService : VpnService(), DialerController {
         }
 
         val configPath = intent?.getStringExtra("configPath") ?: return START_NOT_STICKY
-        val configJson = intent.getStringExtra("configJson") ?: ""
+        val configJson = intent?.getStringExtra("configJson") ?: ""
         
         startCore(configPath, configJson)
         
