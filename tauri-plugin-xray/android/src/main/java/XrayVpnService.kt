@@ -34,15 +34,30 @@ class XrayVpnService : VpnService(), DialerController {
     private fun setupVpn() {
         if (vpnInterface != null) return
         val builder = Builder()
-        
-        // Базовые настройки TUN (IP и маршрутизация)
+    
+        builder.setMtu(1500)
+        builder.setBlocking(true)
+      
+        // IPv4
         builder.addAddress("172.19.0.1", 30)
-        builder.addDnsServer("8.8.8.8")
-        builder.addRoute("0.0.0.0", 0) 
-        
+        builder.addRoute("0.0.0.0", 0)
+    
+    // IPv6
+        builder.addAddress("fc00::", 126)
+        builder.addRoute("::", 0)
+    
+        builder.addDnsServer("1.1.1.1")
+    
+        try {
+            // Исключаем само приложение (VPN loop fix)
+            builder.addDisallowedApplication(applicationContext.packageName)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    
         vpnInterface = builder.establish()
     }
-
+    
     private fun startXray(configPath: String) {
         LibXray.registerDialerController(this)
         
