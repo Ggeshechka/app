@@ -8,13 +8,14 @@ import android.util.Log
 import androidx.annotation.Keep
 import libXray.LibXray
 import libXray.DialerController
+import org.json.JSONObject
 
 @Keep
 class XrayVpnService : VpnService(), DialerController {
 
     private var vpnInterface: ParcelFileDescriptor? = null
 
-    // Реализация интерфейса для защиты сокетов от зацикливания
+    // Исправлено: protect принимает Int
     override fun protectFd(fd: Long): Boolean {
         return protect(fd.toInt())
     }
@@ -26,17 +27,16 @@ class XrayVpnService : VpnService(), DialerController {
         }
 
         val configPath = intent?.getStringExtra("configPath") ?: return START_NOT_STICKY
+        val configJson = intent.getStringExtra("configJson") ?: ""
         
-        startCore(configPath)
+        startCore(configPath, configJson)
         
         return START_STICKY
     }
 
-    private fun startCore(configPath: String) {
-        // 1. Регистрируем контроллер защиты сокетов
+    private fun startCore(configPath: String, configJson: String) {
         LibXray.registerDialerController(this)
 
-        // 2. Настраиваем VPN и получаем интерфейс
         val builder = Builder()
             .setMtu(1500)
             .setBlocking(true)
@@ -45,44 +45,55 @@ class XrayVpnService : VpnService(), DialerController {
             .addAddress("fc00::", 126)
             .addRoute("::", 0)
             .addDnsServer("1.1.1.1")
-            .addDisallowedApplication(applicationContext.packageName)
+            try {
+                builder.addDisallowedApplication(applicationContext.packageName)
+            } catch (e: Exception) {}
 
         vpnInterface = builder.establish()
         
-        if (vpnInterface == null) {
-            Log.e("XRAY_SERVICE", "Failed to establish VPN interface")
-            return
-        }
+        if (vpnInterface == null) return
 
-        // 3. Извлекаем FD и передаем владение в Go
+        // detachFd() возвращает Int, что соответствует нашей новой функции в Go
         val fd = vpnInterface!!.detachFd()
-
         val datDir = filesDir.absolutePath
 
         Thread {
             try {
-                // Генерируем запрос (используем существующий в либе метод или вручную JSON)
-                val reqBase64 = LibXray.newXrayRunRequest(datDir, datDir, configPath)
+                // Создаем JSON запрос вручную, чтобы не зависеть от функций Go
+                val requestObj = JSONObject()
+                requestObj.put("datDir", datDir)
+                requestObj.put("mphCachePath", datDir)
                 
-                // ВАЖНО: Вызываем нашу новую функцию с FD
-                val resultBase64 = LibXray.runXray(fd, reqBase64)
+                if (configJson.isNotEmpty()) {
+                    requestObj.put("configJSON", configJson)
+                } else {
+                    requestObj.put("configPath", configPath)
+                }
+
+                val reqBase64 = Base64.encodeToString(
+                    requestObj.toString().toByteArray(), 
+                    Base64.NO_WRAP
+                )
+                
+                // Вызываем обновленную функцию (Int, String)
+                val resultBase64 = if (configJson.isNotEmpty()) {
+                    LibXray.runXrayFromJSON(fd, reqBase64)
+                } else {
+                    LibXray.runXray(fd, reqBase64)
+                }
                 
                 if (resultBase64.isNotEmpty()) {
-                    val errorJson = String(Base64.decode(resultBase64, Base64.DEFAULT))
-                    Log.e("XRAY_CORE", "Start error: $errorJson")
+                    val error = String(Base64.decode(resultBase64, Base64.DEFAULT))
+                    Log.e("XRAY_CORE", "Error: $error")
                 }
             } catch (e: Exception) {
-                Log.e("XRAY_CORE", "Crash during start", e)
+                Log.e("XRAY_CORE", "Crash", e)
             }
         }.start()
     }
 
     private fun stopVpn() {
-        try {
-            LibXray.stopXray()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        LibXray.stopXray()
         vpnInterface?.close()
         vpnInterface = null
         stopSelf()
