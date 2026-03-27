@@ -25,15 +25,12 @@ class ExamplePlugin(private val activity: Activity): Plugin(activity) {
         try {
             val json = JSONObject(args.value ?: "{}")
             val action = json.optString("action", "unknown")
-            val data = json.optString("data", "") // Ожидается путь к конфигу
+            val data = json.optString("data", "") 
 
             when (action) {
                 "startVpn" -> {
-                    // data содержит сырой JSON, сохраняем его в config.json
                     val configFile = java.io.File(activity.filesDir, "config.json")
                     configFile.writeText(data)
-                    
-                    // Передаем абсолютный путь к созданному файлу
                     VpnController.start(activity.applicationContext, configFile.absolutePath)
                     ret.put("value", "VPN start initiated")
                 }
@@ -44,13 +41,11 @@ class ExamplePlugin(private val activity: Activity): Plugin(activity) {
                 "getStatus" -> {
                     val isActive = VpnController.getStatus()
                     ret.put("value", if (isActive) "Connected" else "Disconnected")
-                },
+                }
                 "getLogs" -> {
-                    // Укажи тот же путь, что прописал в config.json
                     val logFile = java.io.File("/storage/emulated/0/Android/data/com.pro100.vpnapp/files/error.log")
                     if (logFile.exists()) {
                         val logs = logFile.readText()
-                        // Берем последние 5000 символов, чтобы не перегружать интерфейс, если лог большой
                         ret.put("value", if (logs.length > 5000) logs.takeLast(5000) else logs)
                     } else {
                         ret.put("value", "Файл логов пока не создан.")
@@ -65,5 +60,6 @@ class ExamplePlugin(private val activity: Activity): Plugin(activity) {
             ret.put("value", "Error parsing JSON: ${e.message}")
             invoke.resolve(ret)
         }
+  
     }
 }
