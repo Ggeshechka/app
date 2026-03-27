@@ -15,12 +15,12 @@ const resultSpan = document.getElementById('result');
 pingButton?.addEventListener('click', async () => {
   if (resultSpan) resultSpan.textContent = "Ожидание...";
   try {
-    const result = await executeAction("startVpn", "{ \"server\": \"192.168.1.1\" }");
+    const result = await executeAction("startVpn", JSON.stringify({ server: "192.168.1.1" }));
     if (resultSpan) {
       resultSpan.textContent = result;
     }
   } catch (error) {
-    if (resultSpan) resultSpan.textContent = `Ошибка: ${error}`;
+    if (resultSpan) resultSpan.textContent = `Ошибка: ${String(error)}`;
     console.error('Ошибка:', error);
   }
 });
@@ -40,7 +40,7 @@ async function fetchLogs() {
     }
   } catch (error) {
     if (logsOutput) {
-      logsOutput.textContent = `Ошибка загрузки логов: ${error}`;
+      logsOutput.textContent = `Ошибка загрузки логов: ${String(error)}`;
     }
   }
 }
