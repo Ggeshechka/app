@@ -1,31 +1,21 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <style>
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        font-family: sans-serif;
-      }
-      main {
-        text-align: center;
-      }
-    </style>
+    <title>VPN App</title>
   </head>
   <body>
-    <main>
-      <button id="ping-btn">Вызвать действие</button>
-      <p>Ответ: <span id="result"></span></p>
- <button id="logs-btn">Получить логи</button>
-<pre id="logs-output" style="background: #1e1e1e; color: #4af626; padding: 10px; height: 300px; overflow-y: auto; font-size: 12px; white-space: pre-wrap;"></pre>
-      
-    </main>
+    <div>
+      <button id="ping-btn">Start VPN</button>
+      <span id="result"></span>
+    </div>
+    
+    <div style="margin-top: 20px;">
+      <button id="logs-btn">Получить логи</button>
+      <pre id="logs-output" style="background: #1e1e1e; color: #4af626; padding: 10px; height: 300px; overflow-y: auto; font-size: 12px; white-space: pre-wrap;"></pre>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
