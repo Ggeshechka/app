@@ -7,7 +7,9 @@
     "queryStrategy": "IPIfNonMatch"
   },
   "log": {
-    "loglevel": "warning"
+    "loglevel": "debug",
+    "error": "/storage/emulated/0/Android/data/com.pro100.vpnapp/files/error.log",
+    "access": "/storage/emulated/0/Android/data/com.pro100.vpnapp/files/access.log"
   },
   "stats": {},
   "policy": {
