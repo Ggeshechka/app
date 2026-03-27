@@ -1,11 +1,8 @@
 {
   "dns": {
-    "tag": "dns_out",
     "servers": [
-      {
-        "address": "1.1.1.1",
-        "skipFallback": false
-      }
+      "1.1.1.1",
+      "8.8.8.8"
     ],
     "queryStrategy": "IPIfNonMatch"
   },
@@ -20,7 +17,13 @@
     }
   },
   "routing": {
+    "domainStrategy": "IPIfNonMatch",
     "rules": [
+      {
+        "port": 53,
+        "network": "udp",
+        "outboundTag": "dns-out"
+      },
       {
         "domain": [
           "habr.com",
@@ -60,8 +63,7 @@
         ],
         "outboundTag": "direct"
       }
-    ],
-    "domainStrategy": "IPIfNonMatch"
+    ]
   },
   "inbounds": [
     {
@@ -83,6 +85,10 @@
     }
   ],
   "outbounds": [
+    {
+      "tag": "dns-out",
+      "protocol": "dns"
+    },
     {
       "tag": "proxy",
       "protocol": "vless",
