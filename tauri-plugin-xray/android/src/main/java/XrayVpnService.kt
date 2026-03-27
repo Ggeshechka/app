@@ -107,7 +107,6 @@ class XrayVpnService : VpnService(), DialerController {
 
     override fun onDestroy() {
         stopVpn()
-        super.onDe
-        stroy()
+        super.onDestroy()
     }
 }
