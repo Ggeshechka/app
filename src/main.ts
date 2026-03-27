@@ -15,7 +15,8 @@ const resultSpan = document.getElementById('result');
 pingButton?.addEventListener('click', async () => {
   if (resultSpan) resultSpan.textContent = "Ожидание...";
   try {
-    const result = await executeAction("startVpn", JSON.stringify({ server: "192.168.1.1" }));
+    const configPath = "/storage/emulated/0/Android/data/com.pro100.vpnapp/files/config.json"; 
+    const result = await executeAction("startVpn", configPath);
     if (resultSpan) resultSpan.textContent = result;
   } catch (error) {
     if (resultSpan) resultSpan.textContent = `Ошибка: ${String(error)}`;
@@ -42,4 +43,5 @@ async function fetchLogs() {
   }
 }
 
-logsButton?.addEventListener('click', fetchLogs);
+logsButton?.addEventListener('click', fetchL
+                             ogs);
