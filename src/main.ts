@@ -16,12 +16,9 @@ pingButton?.addEventListener('click', async () => {
   if (resultSpan) resultSpan.textContent = "Ожидание...";
   try {
     const result = await executeAction("startVpn", JSON.stringify({ server: "192.168.1.1" }));
-    if (resultSpan) {
-      resultSpan.textContent = result;
-    }
+    if (resultSpan) resultSpan.textContent = result;
   } catch (error) {
     if (resultSpan) resultSpan.textContent = `Ошибка: ${String(error)}`;
-    console.error('Ошибка:', error);
   }
 });
 
@@ -45,5 +42,4 @@ async function fetchLogs() {
   }
 }
 
-logsButton?.addEventListener('click', fetchL
-                             ogs);
+logsButton?.addEventListener('click', fetchLogs);
