@@ -77,9 +77,9 @@ class XrayVpnService : VpnService(), DialerController {
                 
                 // Вызываем обновленную функцию (Int, String)
                 val resultBase64 = if (configJson.isNotEmpty()) {
-                    LibXray.runXrayFromJSON(fd, reqBase64)
+                    LibXray.runXrayFromJSON(fd.toLong(), reqBase64)
                 } else {
-                    LibXray.runXray(fd, reqBase64)
+                    LibXray.runXray(fd.toLong(), reqBase64)
                 }
                 
                 if (resultBase64.isNotEmpty()) {
