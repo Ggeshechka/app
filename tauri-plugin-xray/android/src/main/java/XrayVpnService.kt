@@ -15,7 +15,6 @@ class XrayVpnService : VpnService(), DialerController {
 
     private var vpnInterface: ParcelFileDescriptor? = null
 
-    // Исправлено: protect принимает Int
     override fun protectFd(fd: Long): Boolean {
         return protect(fd.toInt())
     }
@@ -45,21 +44,27 @@ class XrayVpnService : VpnService(), DialerController {
             .addAddress("fc00::", 126)
             .addRoute("::", 0)
             .addDnsServer("1.1.1.1")
-            try {
-                builder.addDisallowedApplication(applicationContext.packageName)
-            } catch (e: Exception) {}
+            
+        try {
+            builder.addDisallowedApplication(applicationContext.packageName)
+        } catch (e: Exception) {}
 
         vpnInterface = builder.establish()
         
         if (vpnInterface == null) return
 
-        // detachFd() возвращает Int, что соответствует нашей новой функции в Go
         val fd = vpnInterface!!.detachFd()
+        
+        try {
+            android.system.Os.setenv("xray.tun.fd", fd.toString(), true)
+        } catch (e: Exception) {
+            Log.e("XRAY_CORE", "Failed to set env xray.tun.fd", e)
+        }
+
         val datDir = filesDir.absolutePath
 
         Thread {
             try {
-                // Создаем JSON запрос вручную, чтобы не зависеть от функций Go
                 val requestObj = JSONObject()
                 requestObj.put("datDir", datDir)
                 requestObj.put("mphCachePath", datDir)
@@ -75,7 +80,6 @@ class XrayVpnService : VpnService(), DialerController {
                     Base64.NO_WRAP
                 )
                 
-                // Вызываем обновленную функцию (Int, String)
                 val resultBase64 = if (configJson.isNotEmpty()) {
                     LibXray.runXrayFromJSON(fd.toLong(), reqBase64)
                 } else {
@@ -93,7 +97,9 @@ class XrayVpnService : VpnService(), DialerController {
     }
 
     private fun stopVpn() {
-        LibXray.stopXray()
+        try {
+            LibXray.stopXray()
+        } catch (e: Exception) {}
         vpnInterface?.close()
         vpnInterface = null
         stopSelf()
@@ -101,6 +107,7 @@ class XrayVpnService : VpnService(), DialerController {
 
     override fun onDestroy() {
         stopVpn()
-        super.onDestroy()
+        super.onDe
+        stroy()
     }
 }
