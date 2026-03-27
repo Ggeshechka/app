@@ -25,7 +25,6 @@ pingButton?.addEventListener('click', async () => {
   }
 });
 
-// Код для логов
 const logsButton = document.getElementById('logs-btn');
 const logsOutput = document.getElementById('logs-output');
 
@@ -46,8 +45,5 @@ async function fetchLogs() {
   }
 }
 
-logsButton?.addEventListener('click', fetchLogs);
-
-// Автообновление логов (раскомментируй, если нужно)
-// setInterval(fetchLogs,
-2000);
+logsButton?.addEventListener('click', fetchL
+                             ogs);
