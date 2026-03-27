@@ -12,16 +12,18 @@ async function executeAction(action: string, data: string = ""): Promise<string>
 const pingButton = document.getElementById('ping-btn');
 const resultSpan = document.getElementById('result');
 
-pingButton?.addEventListener('click', async () => {
-  if (resultSpan) resultSpan.textContent = "Ожидание...";
-  try {
-    const configPath = "/storage/emulated/0/Android/data/com.pro100.vpnapp/files/config.json"; 
-    const result = await executeAction("startVpn", configPath);
-    if (resultSpan) resultSpan.textContent = result;
-  } catch (error) {
-    if (resultSpan) resultSpan.textContent = `Ошибка: ${String(error)}`;
-  }
-});
+if (pingButton) {
+  pingButton.addEventListener('click', async () => {
+    if (resultSpan) resultSpan.textContent = "Ожидание...";
+    try {
+      const configPath = "/storage/emulated/0/Android/data/com.pro100.vpnapp/files/config.json"; 
+      const result = await executeAction("startVpn", configPath);
+      if (resultSpan) resultSpan.textContent = result;
+    } catch (error) {
+      if (resultSpan) resultSpan.textContent = `Ошибка: ${String(error)}`;
+    }
+  });
+}
 
 const logsButton = document.getElementById('logs-btn');
 const logsOutput = document.getElementById('logs-output');
@@ -43,5 +45,7 @@ async function fetchLogs() {
   }
 }
 
-logsButton?.addEventListener('click', fetchL
-                             ogs);
+if (logsButton) {
+  logsButton.addEventListener('click', fetchLog
+                              s);
+}
