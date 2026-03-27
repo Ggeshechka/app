@@ -3,7 +3,6 @@ import { invoke } from "@tauri-apps/api/core";
 async function executeAction(action: string, data: string = ""): Promise<string> {
   const res = await invoke<{ value: string }>('plugin:xray|ping', {
     payload: {
-      // Упаковываем всё в поле value
       value: JSON.stringify({ action, data })
     }
   });
@@ -25,3 +24,30 @@ pingButton?.addEventListener('click', async () => {
     console.error('Ошибка:', error);
   }
 });
+
+// Код для логов
+const logsButton = document.getElementById('logs-btn');
+const logsOutput = document.getElementById('logs-output');
+
+async function fetchLogs() {
+  if (logsOutput && logsOutput.textContent === "") {
+    logsOutput.textContent = "Загрузка логов...";
+  }
+  try {
+    const logs = await executeAction("getLogs");
+    if (logsOutput) {
+      logsOutput.textContent = logs;
+      logsOutput.scrollTop = logsOutput.scrollHeight;
+    }
+  } catch (error) {
+    if (logsOutput) {
+      logsOutput.textContent = `Ошибка загрузки логов: ${error}`;
+    }
+  }
+}
+
+logsButton?.addEventListener('click', fetchLogs);
+
+// Автообновление логов (раскомментируй, если нужно)
+// setInterval(fetchLogs,
+2000);
