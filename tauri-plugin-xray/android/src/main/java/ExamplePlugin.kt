@@ -29,10 +29,13 @@ class ExamplePlugin(private val activity: Activity): Plugin(activity) {
 
             when (action) {
                 "startVpn" -> {
-                    val configFile = java.io.File(activity.filesDir, "config.json")
-                    configFile.writeText(data)
-                    VpnController.start(activity.applicationContext, configFile.absolutePath)
-                    ret.put("value", "VPN start initiated")
+                    val configPath = data
+                    if (java.io.File(configPath).exists()) {
+                        VpnController.start(activity.applicationContext, configPath)
+                        ret.put("value", "VPN start initiated")
+                    } else {
+                        ret.put("value", "Ошибка: файл конфига не найден по пути $configPath")
+                    }
                 }
                 "stopVpn" -> {
                     VpnController.stop(activity.applicationContext)
